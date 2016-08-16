@@ -252,6 +252,91 @@ const QString LStepExpressSettingsInstructionD::valueAsString()
     return QString::number(value_);
 }
 
+LStepExpressSettingsInstructionVD::LStepExpressSettingsInstructionVD(const QString& key,
+                                                                   const QString& setter,
+                                                                   const QString& getter,
+                                                                     int size,
+                                                                   bool needsValidConfig,
+                                                                   bool needsValidPar)
+    : LStepExpressSettingsInstruction(key, setter, getter, needsValidConfig, needsValidPar),
+      size_(size)
+{
+    value_.resize(size_, 0);
+}
+
+const QString LStepExpressSettingsInstructionVD::value()
+{
+    QString temp;
+    for (std::vector<double>::iterator it = value_.begin();
+         it!=value_.end();
+         ++it) {
+        if (it!=value_.begin()) temp += " ";
+        temp += QString::number(*it);
+    }
+    return temp;
+}
+
+bool LStepExpressSettingsInstructionVD::setValue(const QString& value)
+{
+    double newValue;
+    bool ret = false;
+
+    QStringList tokens = value.split(" ", QString::SkipEmptyParts);
+    int i = 0;
+    for (QStringList::iterator it = tokens.begin();
+         it!=tokens.end();
+         ++it) {
+        newValue = (*it).toDouble();
+        if (newValue!=value_[i]) ret = true;
+        value_[i] = newValue;
+        i++;
+    }
+
+    return ret;
+}
+
+bool LStepExpressSettingsInstructionVD::setValue(QVariant value)
+{
+    double newValue;
+    bool ret = false;
+
+    QList<QVariant> list = value.toList();
+    int i = 0;
+    for (QList<QVariant>::Iterator it = list.begin();
+         it!=list.end();
+         ++it) {
+        newValue = (*it).toDouble();
+        if (newValue!=value_[i]) ret = true;
+        value_[i] = newValue;
+        i++;
+    }
+
+    return ret;
+}
+
+const QString LStepExpressSettingsInstructionVD::valueAsString()
+{
+    QString temp;
+    for (std::vector<double>::iterator it = value_.begin();
+         it!=value_.end();
+         ++it) {
+        if (it!=value_.begin()) temp += " ";
+        temp += QString::number(*it);
+    }
+    return temp;
+}
+
+QVariant LStepExpressSettingsInstructionVD::getValue()
+{
+    QList<QVariant> list;
+    for (std::vector<double>::iterator it = value_.begin();
+         it!=value_.end();
+         ++it) {
+        list.append(QVariant(*it));
+    }
+    return QVariant(list);
+}
+
 LStepExpressSettings::LStepExpressSettings(LStepExpressModel* model, QObject* parent)
     : QObject(parent),
       model_(model)
@@ -330,7 +415,7 @@ LStepExpressSettings::LStepExpressSettings(LStepExpressModel* model, QObject* pa
     addBA("DeviationCheck", "!deviationcheck", "deviationcheck", true, true); 
 
     //Limit switch
-    addVIA("Limit", "!lim", "lim", 2, false, false); // - MAX - + MAX, dependent on dimensions, always enter in pairs
+    addVDA("Limit", "!lim", "lim", 2, false, false); // - MAX - + MAX, dependent on dimensions, always enter in pairs
     addBA("RangeMonitoring", "!limctr", "limctr", false, false);
     addBA("NoSoftwareLimit", "!nosetlimit", "nosetlimit", false, false);
     addVIA("LimitSwitchOn", "!swact", "swact", 3, true, true); //order: E0 REF EE
@@ -506,6 +591,7 @@ void LStepExpressSettings::readSettingsFromFile(const QString& filename)
     }
 }
 
+//doesn't save the settings to the device, only applies them so they take effect
 void LStepExpressSettings::writeSettingsToDevice()
 {
     QMutexLocker locker(&mutex_);
@@ -597,6 +683,17 @@ void LStepExpressSettings::addDA(const QString& key, const QString& setter, cons
     addD(QString("A-") + key, setter + " a", getter + " a", needsValidConfig, needsValidPar);
 }
 
+void LStepExpressSettings::addVDA(const QString& key, const QString& setter, const QString& getter,
+                                  int size,
+                                  bool needsValidConfig,
+                                  bool needsValidPar)
+{
+    addVD(QString("X-") + key, setter + " x", getter + " x", size, needsValidConfig, needsValidPar);
+    addVD(QString("Y-") + key, setter + " y", getter + " y", size, needsValidConfig, needsValidPar);
+    addVD(QString("Z-") + key, setter + " z", getter + " z", size, needsValidConfig, needsValidPar);
+    addVD(QString("A-") + key, setter + " a", getter + " a", size, needsValidConfig, needsValidPar);
+}
+
 void LStepExpressSettings::addB(const QString& key, const QString& setter, const QString& getter,
                                 bool needsValidConfig,
                                 bool needsValidPar)
@@ -638,6 +735,18 @@ void LStepExpressSettings::addD(const QString& key, const QString& setter, const
     LStepExpressSettingsInstruction* parameter = new LStepExpressSettingsInstructionD(key, setter, getter,
                                                                                       needsValidConfig,
                                                                                       needsValidPar);
+    parameterMap_.insert(key, parameter);
+    parameters_.append(parameter);
+}
+
+void LStepExpressSettings::addVD(const QString& key, const QString& setter, const QString& getter,
+                                 int size,
+                                 bool needsValidConfig,
+                                 bool needsValidPar)
+{
+    LStepExpressSettingsInstruction* parameter = new LStepExpressSettingsInstructionVD(key, setter, getter, size,
+                                                                                       needsValidConfig,
+                                                                                       needsValidPar);
     parameterMap_.insert(key, parameter);
     parameters_.append(parameter);
 }

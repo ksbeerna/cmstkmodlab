@@ -22,7 +22,8 @@ public:
         Bool           =  0,
         Integer        =  1,
         VectorInteger  =  3,
-        Double         =  2
+        Double         =  2,
+        VectorDouble   =  4
     };
 
     explicit LStepExpressSettingsInstruction(const QString& key,
@@ -153,6 +154,32 @@ protected:
     double value_;
 };
 
+class LStepExpressSettingsInstructionVD : public LStepExpressSettingsInstruction
+{
+public:
+
+    explicit LStepExpressSettingsInstructionVD(const QString& key,
+                                               const QString& setter,
+                                               const QString& getter,
+                                               int size,
+                                               bool needsValidConfig,
+                                               bool needsValidPar);
+
+    bool setValue(const QString& value);
+    const QString valueAsString();
+
+    const QString value();
+    virtual QVariant getValue();
+    bool setValue(QVariant value);
+
+    virtual Type type() { return VectorDouble; }
+
+protected:
+
+    int size_;
+    std::vector<double> value_;
+};
+
 class LStepExpressSettings : public QObject
 {
 Q_OBJECT
@@ -198,6 +225,9 @@ protected:
     void addDA(const QString& key, const QString& setter, const QString& getter,
                bool needsValidConfig,
                bool needsValidPar);
+    void addVDA(const QString& key, const QString& setter, const QString& getter, int size,
+               bool needsValidConfig,
+               bool needsValidPar);
 
     void addB(const QString& key, const QString& setter, const QString& getter,
               bool needsValidConfig,
@@ -209,6 +239,9 @@ protected:
               bool needsValidConfig,
               bool needsValidPar);
     void addD(const QString& key, const QString& setter, const QString& getter,
+              bool needsValidConfig,
+              bool needsValidPar);
+    void addVD(const QString& key, const QString& setter, const QString& getter, int size,
               bool needsValidConfig,
               bool needsValidPar);
 

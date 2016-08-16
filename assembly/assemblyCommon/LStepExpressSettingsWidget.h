@@ -87,6 +87,33 @@ signals:
     void valueChanged(QString, bool, bool, bool);
 };
 
+class LStepExpressSettingsDuoDoubleSpinBox : public QWidget
+{
+      Q_OBJECT
+
+public:
+
+    LStepExpressSettingsDuoDoubleSpinBox(LStepExpressSettings* settings, const QString& key,
+			     double min_1, double max_1, double min_2, double max_2,
+                                       QWidget * parent);
+
+protected slots:
+
+    void settingChanged(QString key, QVariant value);
+    //    void statusChanged(int /* state */);
+    void handleValueChanged(double value);
+
+protected:
+
+    LStepExpressSettings* settings_;
+    QString key_;
+    QDoubleSpinBox* box_[2];
+
+signals:
+
+    void valueChanged(QString, double, double);
+};
+
 class LStepExpressSettingsIntSpinBox : public QSpinBox
 {
       Q_OBJECT

@@ -116,6 +116,66 @@ void LStepExpressSettingsTripleCheckBox::settingChanged(QString key, QVariant va
     }
 }
 
+LStepExpressSettingsDuoDoubleSpinBox::LStepExpressSettingsDuoDoubleSpinBox(LStepExpressSettings* settings,
+						   const QString& key, double min_1, double max_1, double min_2, double max_2,
+                                                                       QWidget * parent)
+    : QWidget(parent),
+      settings_(settings),
+      key_(key)
+{
+    QHBoxLayout * layout = new QHBoxLayout(this);
+    setLayout(layout);
+
+    box_[0] = new QDoubleSpinBox(this);
+    layout->addWidget(box_[0]);
+    box_[1] = new QDoubleSpinBox(this);
+    layout->addWidget(box_[1]);
+
+    box_[0]->setMinimum(min_1);
+    box_[0]->setMaximum(max_1);
+    box_[1]->setMinimum(min_2);
+    box_[1]->setMaximum(max_2);
+
+    connect(box_[0], SIGNAL(valueChanged(double)),
+            this, SLOT(handleValueChanged(double)));
+    connect(box_[1], SIGNAL(valueChanged(double)),
+            this, SLOT(handleValueChanged(double)));
+
+    connect(this, SIGNAL(valueChanged(QString, double, double)),
+            settings_, SLOT(valueChanged(QString, double, double)));
+
+    connect(settings_, SIGNAL(settingChanged(QString, QVariant)),
+            this, SLOT(settingChanged(QString, QVariant)));
+}
+
+
+//void LStepExpressSettingsDuoDoubleSpinBox::statusChanged(int /* state */)
+//{
+//    emit valueChanged(key_, box_[0]->isChecked(), box_[1]->isChecked(), box_[2]->isChecked());
+//}
+
+
+void LStepExpressSettingsDuoDoubleSpinBox::handleValueChanged(double value)
+{
+    emit valueChanged(key_, box_[0]->value(), box_[1]->value());
+}
+
+void LStepExpressSettingsDuoDoubleSpinBox::settingChanged(QString key, QVariant value)
+{
+    if (key!=key_) return;
+
+    NQLog("LStepExpressSettingsDuoDoubleSpinBox", NQLog::Debug) << "settingChanged(" << key.toStdString() << ")"    ;
+
+    QList<QVariant> list = value.toList();
+    int i = 0;
+    for (QList<QVariant>::Iterator it = list.begin();
+         it!=list.end();
+         ++it) {
+        box_[i]->setValue((*it).toDouble());
+        i++;
+    }
+}
+
 LStepExpressSettingsIntSpinBox::LStepExpressSettingsIntSpinBox(LStepExpressSettings* settings,
                                                                const QString& key,
                                                                int min, int max,
@@ -126,7 +186,7 @@ LStepExpressSettingsIntSpinBox::LStepExpressSettingsIntSpinBox(LStepExpressSetti
 {
     setMinimum(min);
     setMaximum(max);
-    setSingleStep(min);
+    //    setSingleStep(min);
 
     connect(this, SIGNAL(valueChanged(int)),
             this, SLOT(handleValueChanged(int)));
@@ -298,9 +358,10 @@ LStepExpressSettingsWidget::LStepExpressSettingsWidget(LStepExpressSettings* set
     resetButton_->setEnabled(false);
     writeToDeviceButton_->setEnabled(false);
 
-    //    connect(model_, SIGNAL(deviceStateChanged(State)),
-    //        this, SLOT(lstepStateChanged(State)));
-
+    /*
+    connect(model_, SIGNAL(deviceStateChanged(State)),
+            this, SLOT(lstepStateChanged(State)));
+    */
 }
 
 /*
@@ -825,11 +886,11 @@ void LStepExpressSettingsWidget::fillLimitToolBox()
     layout->addWidget(new QLabel("A", limitToolBox_), 0, 4);
 
     //FIX ME!
-    layout->addWidget(new QLabel("Travel limits", limitToolBox_), 1, 0);
-    layout->addWidget(new LStepExpressSettingsDoubleSpinBox(settings_, "X-Limit", 0.0, 100000.00, limitToolBox_), 1, 1);
-    layout->addWidget(new LStepExpressSettingsDoubleSpinBox(settings_, "Y-Limit", 0.0, 100000.00, limitToolBox_), 1, 2);
-    layout->addWidget(new LStepExpressSettingsDoubleSpinBox(settings_, "Z-Limit", 0.0, 100000.00, limitToolBox_), 1, 3);
-    layout->addWidget(new LStepExpressSettingsDoubleSpinBox(settings_, "A-Limit", 0.0, 100000.00, limitToolBox_), 1, 4);
+    layout->addWidget(new QLabel("Travel limits (MIN/MAX)", limitToolBox_), 1, 0);
+    layout->addWidget(new LStepExpressSettingsDuoDoubleSpinBox(settings_, "X-Limit", -150.0, 150.00, -150.0, 150.0, limitToolBox_), 1, 1);
+    layout->addWidget(new LStepExpressSettingsDuoDoubleSpinBox(settings_, "Y-Limit", -150.0, 150.00, -150.0, 150.0, limitToolBox_), 1, 2);
+    layout->addWidget(new LStepExpressSettingsDuoDoubleSpinBox(settings_, "Z-Limit", -150.0, 150.00, -150.0, 150.0, limitToolBox_), 1, 3);
+    layout->addWidget(new LStepExpressSettingsDuoDoubleSpinBox(settings_, "A-Limit", -150.0, 150.00, -150.0, 150.0, limitToolBox_), 1, 4);
 
     layout->addWidget(new QLabel("Range monitoring", limitToolBox_), 2, 0);
     layout->addWidget(new LStepExpressSettingsCheckBox(settings_, "X-RangeMonitoring", limitToolBox_), 2, 1);

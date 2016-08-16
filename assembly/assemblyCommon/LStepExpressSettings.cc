@@ -514,6 +514,11 @@ void LStepExpressSettings::valueChanged(QString key, double value)
     NQLog("LStepExpressSettings ", NQLog::Debug) << "valueChanged " << key.toStdString() << " " << value    ;
 }
 
+void LStepExpressSettings::valueChanged(QString key, double value_1, double value_2)
+{
+    NQLog("LStepExpressSettings ", NQLog::Debug) << "valueChanged " << key.toStdString() << " " << value_1 << " " << value_2    ;
+}
+
 QVariant LStepExpressSettings::getValueForKey(const QString& key)
 {
     QMutexLocker locker(&mutex_);

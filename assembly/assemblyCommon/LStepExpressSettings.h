@@ -201,6 +201,7 @@ public slots:
     void valueChanged(QString key, bool value0, bool value1, bool value2);
     void valueChanged(QString key, int value);
     void valueChanged(QString key, double value);
+    void valueChanged(QString key, double value_1, double value_2);
 
     void readSettingsFromDevice();
     void readSettingsFromFile(const QString& filename);

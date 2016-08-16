@@ -28,6 +28,7 @@ class LStepExpressSettingsComboBox : public QComboBox
     protected slots:
 
         void settingChanged(QString key, QVariant value);
+        void handleValueChanged(int);
 
  protected:
         LStepExpressSettings* settings_;
@@ -35,7 +36,7 @@ class LStepExpressSettingsComboBox : public QComboBox
         
  signals:
 
-        void valueChanged(QString, double);
+        void valueChanged(QString, int);
 };
 
 class LStepExpressSettingsCheckBox : public QCheckBox

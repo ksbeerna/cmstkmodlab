@@ -14,11 +14,11 @@ LStepExpressSettingsComboBox::LStepExpressSettingsComboBox(LStepExpressSettings*
       settings_(settings),
       key_(key)
 {
-    connect(this, SIGNAL(valueChanged(double)),
-            this, SLOT(valueChanged(double)));
+    connect(this, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(handleValueChanged(int)));
 
-    connect(this, SIGNAL(valueChanged(QString, double)),
-            settings_, SLOT(valueChanged(QString, double)));
+    connect(this, SIGNAL(valueChanged(QString, int)),
+            settings_, SLOT(valueChanged(QString, int)));
 
     connect(settings_, SIGNAL(settingChanged(QString, QVariant)),
             this, SLOT(settingChanged(QString, QVariant)));
@@ -31,6 +31,11 @@ void LStepExpressSettingsComboBox::settingChanged(QString key, QVariant value)
     NQLog("LStepExpressSettingsComboBox", NQLog::Debug) << "settingChanged(" << key.toStdString() << ")"    ;
 
     setCurrentIndex(value.toInt());
+}
+
+void LStepExpressSettingsComboBox::handleValueChanged(int value)
+{
+    emit valueChanged(key_, itemText(value).toInt());
 }
 
 LStepExpressSettingsCheckBox::LStepExpressSettingsCheckBox(LStepExpressSettings* settings,

@@ -358,10 +358,10 @@ LStepExpressSettingsWidget::LStepExpressSettingsWidget(LStepExpressSettings* set
     connect(settings_, SIGNAL(controlStateChanged(bool)),
             this, SLOT(controlStateChanged(bool)));
 
-    readFromDeviceButton_->setEnabled(false);
-    applyButton_->setEnabled(false);
-    resetButton_->setEnabled(false);
-    writeToDeviceButton_->setEnabled(false);
+    readFromDeviceButton_->setEnabled(true);
+    applyButton_->setEnabled(true);
+    resetButton_->setEnabled(true);
+    writeToDeviceButton_->setEnabled(true);
 
     /*
     connect(model_, SIGNAL(deviceStateChanged(State)),

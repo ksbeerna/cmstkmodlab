@@ -53,11 +53,15 @@ void LStepExpressMotionManager::printSpyInformation()
 
 void LStepExpressMotionManager::run()
 {
+    NQLog("LStepExpressMotionManager", NQLog::Debug) << "run";
+
     if (inMotion_) return;
+
+    NQLog("LStepExpressMotionManager", NQLog::Debug) << "run2";
 
     if (motions_.empty()) return;
 
-    NQLog("LStepExpressMotionManager", NQLog::Debug) << "run";
+    NQLog("LStepExpressMotionManager", NQLog::Debug) << "run3";
 
     LStepExpressMotion motion = motions_.dequeue();
 
